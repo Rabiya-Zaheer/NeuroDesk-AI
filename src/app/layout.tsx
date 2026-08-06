@@ -1,41 +1,54 @@
-import { redirect, notFound } from "next/navigation";
-import { getSession } from "@/lib/auth";
-import { getWorkspaceById } from "@/lib/dummy-data";
-import { getWhiteboardState } from "@/features/workspace/whiteboard-actions";
-import { WorkspaceSidebar } from "@/components/workspace/workspace-sidebar";
-import { WorkspaceHeader } from "@/components/workspace/workspace-header";
-import { RealtimeWorkspaceProvider } from "@/features/workspace/realtime-context";
+import type { Metadata } from "next";
+import { Inter, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import { Toaster } from "sonner";
+import { NativeBridge } from "@/components/native-bridge";
+import "./globals.css";
 
-export default async function WorkspaceLayout({
-  children,
-  params,
-}: {
-  children: React.ReactNode;
-  params: Promise<{ workspaceId: string }>;
-}) {
-  const session = await getSession();
-  if (!session) redirect("/login");
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-display",
+  display: "swap",
+});
 
-  const { workspaceId } = await params;
-  const workspace = getWorkspaceById(workspaceId);
-  if (!workspace) notFound();
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
 
-  const { notes, elements } = await getWhiteboardState(workspaceId);
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+});
 
+export const metadata: Metadata = {
+  title: {
+    default: "NeuroDesk — One workspace for everything you're working on",
+    template: "%s · NeuroDesk",
+  },
+  description:
+    "NeuroDesk is an AI-powered productivity workspace: whiteboards, documents, study and career tools, all connected to one workspace.",
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <RealtimeWorkspaceProvider
-      workspaceId={workspaceId}
-      currentUser={{ id: session.userId, name: session.name }}
-      initialNotes={notes}
-      initialElements={elements}
-    >
-      <div className="flex h-screen overflow-hidden bg-(--color-background)">
-        <WorkspaceSidebar workspace={workspace} />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <WorkspaceHeader workspace={workspace} />
-          <main className="flex-1 overflow-y-auto">{children}</main>
-        </div>
-      </div>
-    </RealtimeWorkspaceProvider>
+    <html lang="en" className={`${jakarta.variable} ${inter.variable} ${jetbrainsMono.variable}`}>
+      <body className="min-h-screen bg-(--color-background) font-(family-name:--font-sans) antialiased">
+        {children}
+        <NativeBridge />
+        <Toaster
+          position="bottom-right"
+          toastOptions={{
+            style: {
+              borderRadius: "1rem",
+              border: "1px solid var(--color-border)",
+              background: "var(--color-surface)",
+              color: "var(--color-ink)",
+            },
+          }}
+        />
+      </body>
+    </html>
   );
 }

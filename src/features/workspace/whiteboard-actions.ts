@@ -1,5 +1,6 @@
 "use server";
 
+import type { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import type { DrawElement, DrawPoint, DrawRect, DrawStroke, StickyNoteState } from "@/types";
 
@@ -83,6 +84,8 @@ export async function persistNotePosition(id: string, x: number, y: number, upda
 export async function persistElementCreate(workspaceId: string, element: DrawElement): Promise<void> {
   const { id, kind, color, width, authorId, ...rest } = element;
   await db.whiteboardElement
-    .create({ data: { id, workspaceId, kind, color, width, authorId, data: rest } })
+    .create({
+      data: { id, workspaceId, kind, color, width, authorId, data: rest as Prisma.InputJsonValue },
+    })
     .catch((err) => console.error("[whiteboard] failed to persist drawn element", err));
 }
