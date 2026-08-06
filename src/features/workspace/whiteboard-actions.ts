@@ -85,7 +85,7 @@ export async function persistElementCreate(workspaceId: string, element: DrawEle
   const { id, kind, color, width, authorId, ...rest } = element;
   await db.whiteboardElement
     .create({
-      data: { id, workspaceId, kind, color, width, authorId, data: rest as Prisma.InputJsonValue },
+      data: { id, workspaceId, kind, color, width, authorId, data: rest as unknown as Prisma.InputJsonValue },
     })
     .catch((err) => console.error("[whiteboard] failed to persist drawn element", err));
 }
