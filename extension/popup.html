@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>NeuroDesk Capture</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="header">
+      <span class="logo">N</span>
+      <span class="title">NeuroDesk</span>
+    </header>
+
+    <main id="app">
+      <!-- States are toggled via the hidden attribute from popup.js -->
+
+      <section id="state-loading" class="state">
+        <p class="muted">Checking your session…</p>
+      </section>
+
+      <section id="state-signed-out" class="state" hidden>
+        <p class="muted">Sign in to NeuroDesk to send captures to a workspace.</p>
+        <button id="btn-sign-in" class="btn btn-primary">Open NeuroDesk to sign in</button>
+      </section>
+
+      <section id="state-ready" class="state" hidden>
+        <label class="field">
+          <span class="field-label">Workspace</span>
+          <select id="workspace-select"></select>
+        </label>
+
+        <label class="field">
+          <span class="field-label">Note title</span>
+          <input id="title-input" type="text" maxlength="300" />
+        </label>
+
+        <label class="field">
+          <span class="field-label">Content</span>
+          <textarea id="excerpt-input" rows="5" maxlength="4000"></textarea>
+        </label>
+
+        <p class="source-url" id="source-url"></p>
+
+        <button id="btn-send" class="btn btn-primary">Send to whiteboard</button>
+        <p id="status-message" class="status" hidden></p>
+      </section>
+    </main>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

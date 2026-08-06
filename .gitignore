@@ -1,0 +1,21 @@
+node_modules
+.next
+out
+.env
+.env.local
+.DS_Store
+*.log
+next-env.d.ts
+tsconfig.tsbuildinfo
+
+# Desktop (Tauri) build artifacts — can be gigabytes, never commit these
+desktop/src-tauri/target
+desktop/node_modules
+
+# Mobile (Capacitor) build artifacts
+mobile/node_modules
+mobile/android/.gradle
+mobile/android/build
+mobile/android/app/build
+mobile/ios/App/Pods
+mobile/ios/App/build

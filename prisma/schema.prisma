@@ -1,0 +1,162 @@
+// NeuroDesk schema — Phase 1 foundation + whiteboard persistence.
+// AI-related tables (DocumentAnalysis, StudyPlan, CareerPath, ChatThread)
+// are intentionally deferred to a later phase and are noted inline as
+// future extension points. WhiteboardNote/WhiteboardElement are real.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  name          String
+  emailVerified DateTime?
+  image         String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profile       Profile?
+  workspaces    Workspace[]
+  notifications Notification[]
+  sessions      Session[]
+
+  @@index([email])
+  @@map("users")
+}
+
+model Profile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  theme       Theme   @default(SYSTEM)
+  timezone    String  @default("UTC")
+  jobTitle    String?
+  bio         String?
+  onboarded   Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("profiles")
+}
+
+model Workspace {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  icon        String   @default("sparkles")
+  color       String   @default("#6366F1")
+
+  ownerId String
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  isArchived Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Future extension points (Phase 2+):
+  //   documents        Document[]
+  //   chatThreads      ChatThread[]
+  //   studyPlans       StudyPlan[]
+  //   careerPaths      CareerPath[]
+  // Note: whiteboardNotes/whiteboardElements exist as real tables but are
+  // NOT related here yet — see WhiteboardNote's comment for why.
+
+  @@index([ownerId])
+  @@map("workspaces")
+}
+
+model WhiteboardNote {
+  id          String  @id @default(cuid())
+  // Deliberately a plain string, not a foreign key to Workspace — workspaces
+  // are still dummy-data-backed (see src/lib/dummy-data.ts), not DB-backed
+  // yet. This gets a real relation once workspace CRUD lands; until then,
+  // this table works against whatever workspaceId string is in the URL.
+  workspaceId String
+  text        String
+  x           Float
+  y           Float
+  rotation    Int     @default(0)
+  color       String  @default("primary")
+  updatedBy   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([workspaceId])
+  @@map("whiteboard_notes")
+}
+
+model WhiteboardElement {
+  id          String @id @default(cuid())
+  workspaceId String
+  kind        String // "stroke" | "rect"
+  color       String
+  width       Float
+  authorId    String
+  // Shape-specific fields that don't cleanly fit fixed columns — a
+  // stroke's variable-length points array, or a rect's start/end corners.
+  data        Json
+
+  createdAt DateTime @default(now())
+
+  @@index([workspaceId])
+  @@map("whiteboard_elements")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  userAgent String?
+  ipAddress String?
+  expiresAt DateTime
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model Notification {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title   String
+  message String
+  type    NotificationType @default(INFO)
+  read    Boolean          @default(false)
+  href    String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, read])
+  @@map("notifications")
+}
+
+enum Theme {
+  LIGHT
+  DARK
+  SYSTEM
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  AI_SUGGESTION
+}

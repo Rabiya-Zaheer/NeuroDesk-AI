@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">NeuroDesk</string>
+    <string name="title_activity_main">NeuroDesk</string>
+    <string name="package_name">com.neurodesk.app</string>
+    <string name="custom_url_scheme">com.neurodesk.app</string>
+</resources>
