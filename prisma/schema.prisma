@@ -67,12 +67,11 @@ model Workspace {
   updatedAt DateTime @updatedAt
 
   // Future extension points (Phase 2+):
-  //   documents        Document[]
   //   chatThreads      ChatThread[]
   //   studyPlans       StudyPlan[]
   //   careerPaths      CareerPath[]
-  // Note: whiteboardNotes/whiteboardElements exist as real tables but are
-  // NOT related here yet — see WhiteboardNote's comment for why.
+  // Note: whiteboardNotes/whiteboardElements/documents exist as real tables
+  // but are NOT related here yet — see WhiteboardNote's comment for why.
 
   @@index([ownerId])
   @@map("workspaces")
@@ -114,6 +113,25 @@ model WhiteboardElement {
 
   @@index([workspaceId])
   @@map("whiteboard_elements")
+}
+
+model Document {
+  id          String @id @default(cuid())
+  // Same non-FK reasoning as WhiteboardNote — workspaces aren't DB-backed yet.
+  workspaceId String
+  name        String
+  mimeType    String
+  sizeBytes   Int
+  // Path within the Supabase Storage bucket, not a public URL — the bucket
+  // is private, files are only ever accessed through a short-lived signed
+  // URL generated server-side, never a stored public link.
+  storagePath String
+  uploadedBy  String
+
+  createdAt DateTime @default(now())
+
+  @@index([workspaceId])
+  @@map("documents")
 }
 
 model Session {
