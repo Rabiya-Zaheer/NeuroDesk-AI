@@ -120,7 +120,7 @@ export function DocumentsView({
               </div>
 
               {doc.downloadUrl && (
-                
+                <a                
                   href={doc.downloadUrl}
                   target="_blank"
                   rel="noreferrer"
