@@ -35,9 +35,6 @@ export function DocumentsView({
             return;
           }
           toast.success(`${file.name} uploaded`);
-          // Simplest correct way to get the new row + a real signed URL is
-          // to just re-fetch — trying to fabricate a signed URL client-side
-          // isn't possible (it requires the service-role key).
           setDocuments(await listDocuments(workspaceId));
         });
       }
@@ -47,7 +44,7 @@ export function DocumentsView({
 
   const handleDelete = useCallback((id: string, name: string) => {
     setOpenMenuId(null);
-    setDocuments((prev) => prev.filter((d) => d.id !== id)); // optimistic
+    setDocuments((prev) => prev.filter((d) => d.id !== id));
     startUpload(async () => {
       const result = await deleteDocument(id);
       if (!result.ok) {
