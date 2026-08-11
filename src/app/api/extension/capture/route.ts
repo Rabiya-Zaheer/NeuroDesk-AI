@@ -16,6 +16,51 @@ export async function OPTIONS(request: NextRequest) {
   return corsPreflight(request.headers.get("origin"));
 }
 
+/**
+ * @swagger
+ * /api/extension/capture:
+ *   post:
+ *     summary: Send captured web content to a workspace whiteboard
+ *     description: >
+ *       Lands the capture as a sticky note using the same StickyNoteState
+ *       shape and note-add broadcast event the in-app whiteboard listens
+ *       for — the extension is another producer into the same workspace,
+ *       not a separate storage system. If the target workspace is open in
+ *       a browser tab with a live Supabase Realtime connection, the note
+ *       appears immediately (deliveredLive: true); otherwise it's still
+ *       saved and appears next time that workspace loads.
+ *     tags: [Extension]
+ *     security:
+ *       - sessionCookie: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [workspaceId, title, url, excerpt]
+ *             properties:
+ *               workspaceId: { type: string }
+ *               title: { type: string, maxLength: 300 }
+ *               url: { type: string, format: uri }
+ *               excerpt: { type: string, maxLength: 4000 }
+ *     responses:
+ *       200:
+ *         description: Capture delivered.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok: { type: boolean }
+ *                 deliveredLive: { type: boolean }
+ *       400:
+ *         description: Invalid payload (fails Zod validation).
+ *       401:
+ *         description: Not authenticated.
+ *       404:
+ *         description: Workspace not found.
+ */
 export async function POST(request: NextRequest) {
   const origin = request.headers.get("origin");
   const session = await getSession();
