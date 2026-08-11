@@ -5,9 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { initials } from "@/lib/utils";
-import { currentUser, notifications } from "@/lib/dummy-data";
+import { notifications } from "@/lib/dummy-data";
 
-export function Navbar() {
+export function Navbar({ user }: { user: { name: string; image?: string | null } }) {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
@@ -37,11 +37,11 @@ export function Navbar() {
 
         <button className="flex items-center gap-2 rounded-full py-1 pl-1 pr-3 transition-colors hover:bg-(--color-surface-muted)">
           <Avatar className="size-8">
-            <AvatarImage src={currentUser.image ?? undefined} alt={currentUser.name} />
-            <AvatarFallback>{initials(currentUser.name)}</AvatarFallback>
+            <AvatarImage src={user.image ?? undefined} alt={user.name} />
+            <AvatarFallback>{initials(user.name)}</AvatarFallback>
           </Avatar>
           <span className="hidden text-sm font-medium text-(--color-ink) sm:block">
-            {currentUser.name.split(" ")[0]}
+            {user.name.split(" ")[0]}
           </span>
         </button>
       </div>

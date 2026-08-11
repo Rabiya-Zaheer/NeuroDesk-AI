@@ -11,7 +11,7 @@ export default async function SettingsLayout({ children }: { children: React.Rea
     <div className="flex h-screen overflow-hidden bg-(--color-background)">
       <DashboardSidebar />
       <div className="flex min-w-0 flex-1 flex-col">
-        <Navbar />
+        <Navbar user={{ name: session.name }} />
         <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
     </div>
