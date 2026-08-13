@@ -67,11 +67,11 @@ model Workspace {
   updatedAt DateTime @updatedAt
 
   // Future extension points (Phase 2+):
-  //   chatThreads      ChatThread[]
   //   studyPlans       StudyPlan[]
   //   careerPaths      CareerPath[]
-  // Note: whiteboardNotes/whiteboardElements/documents exist as real tables
-  // but are NOT related here yet — see WhiteboardNote's comment for why.
+  // Note: whiteboardNotes/whiteboardElements/documents/chatMessages exist
+  // as real tables but are NOT related here yet — see WhiteboardNote's
+  // comment for why.
 
   @@index([ownerId])
   @@map("workspaces")
@@ -79,10 +79,6 @@ model Workspace {
 
 model WhiteboardNote {
   id          String  @id @default(cuid())
-  // Deliberately a plain string, not a foreign key to Workspace — workspaces
-  // are still dummy-data-backed (see src/lib/dummy-data.ts), not DB-backed
-  // yet. This gets a real relation once workspace CRUD lands; until then,
-  // this table works against whatever workspaceId string is in the URL.
   workspaceId String
   text        String
   x           Float
@@ -105,8 +101,6 @@ model WhiteboardElement {
   color       String
   width       Float
   authorId    String
-  // Shape-specific fields that don't cleanly fit fixed columns — a
-  // stroke's variable-length points array, or a rect's start/end corners.
   data        Json
 
   createdAt DateTime @default(now())
@@ -117,14 +111,10 @@ model WhiteboardElement {
 
 model Document {
   id          String @id @default(cuid())
-  // Same non-FK reasoning as WhiteboardNote — workspaces aren't DB-backed yet.
   workspaceId String
   name        String
   mimeType    String
   sizeBytes   Int
-  // Path within the Supabase Storage bucket, not a public URL — the bucket
-  // is private, files are only ever accessed through a short-lived signed
-  // URL generated server-side, never a stored public link.
   storagePath String
   uploadedBy  String
 
@@ -132,6 +122,19 @@ model Document {
 
   @@index([workspaceId])
   @@map("documents")
+}
+
+model ChatMessage {
+  id          String  @id @default(cuid())
+  workspaceId String
+  role        String // "user" | "assistant"
+  content     String
+  authorName  String?
+
+  createdAt DateTime @default(now())
+
+  @@index([workspaceId])
+  @@map("chat_messages")
 }
 
 model Session {
