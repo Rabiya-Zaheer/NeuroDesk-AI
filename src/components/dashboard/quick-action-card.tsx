@@ -11,12 +11,12 @@ const colorStyles: Record<QuickAction["color"], string> = {
   purple: "bg-(--color-purple-soft) text-(--color-purple)",
 };
 
-export function QuickActionCard({ action }: { action: QuickAction }) {
+export function QuickActionCard({ action, workspaceId }: { action: QuickAction; workspaceId: string }) {
   const Icon = resolveIcon(action.icon);
 
   return (
     <Link
-      href={action.href}
+      href={`/workspace/${workspaceId}/${action.tool}`}
       className="group relative flex flex-col gap-3 overflow-hidden rounded-(--radius-card) border border-(--color-border) bg-(--color-surface) p-5 shadow-(--shadow-soft) transition-all hover:-translate-y-0.5 hover:shadow-(--shadow-soft-lg)"
     >
       <div className="flex items-start justify-between">

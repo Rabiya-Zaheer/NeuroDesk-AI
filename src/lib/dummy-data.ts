@@ -3,7 +3,6 @@ import type {
   AiSuggestion,
   NotificationItem,
   QuickAction,
-  WorkspaceSummary,
 } from "@/types";
 
 export const currentUser = {
@@ -13,59 +12,12 @@ export const currentUser = {
   image: null as string | null,
 };
 
-export const workspaces: WorkspaceSummary[] = [
-  {
-    id: "4fa2b9c1",
-    name: "Thesis Research",
-    slug: "thesis-research",
-    icon: "book-open",
-    color: "primary",
-    description: "Cognitive load in interface design — lit review & drafts",
-    memberCount: 1,
-    lastActivity: "2026-07-23T08:15:00Z",
-    progress: 62,
-  },
-  {
-    id: "7cd881ff",
-    name: "Job Search — Product Design",
-    slug: "job-search-product-design",
-    icon: "briefcase",
-    color: "secondary",
-    description: "Applications, resume versions, and interview prep",
-    memberCount: 1,
-    lastActivity: "2026-07-22T19:40:00Z",
-    progress: 34,
-  },
-  {
-    id: "9e12a04d",
-    name: "Systems Design Study Group",
-    slug: "systems-design-study-group",
-    icon: "users",
-    color: "purple",
-    description: "Shared whiteboard with Sana and Bilal",
-    memberCount: 3,
-    lastActivity: "2026-07-21T14:05:00Z",
-    progress: 18,
-  },
-  {
-    id: "2b6f77aa",
-    name: "Freelance — Orbit App",
-    slug: "freelance-orbit-app",
-    icon: "layers",
-    color: "accent",
-    description: "Client documents, contracts, and onboarding notes",
-    memberCount: 1,
-    lastActivity: "2026-07-19T11:22:00Z",
-    progress: 80,
-  },
-];
-
 export const quickActions: QuickAction[] = [
   {
     id: "qa-analyze",
     label: "Analyze Document",
     description: "Upload a PDF, resume, or reading",
-    href: "/workspace/4fa2b9c1/documents",
+    tool: "documents",
     icon: "file-search",
     color: "primary",
   },
@@ -73,7 +25,7 @@ export const quickActions: QuickAction[] = [
     id: "qa-whiteboard",
     label: "Start Whiteboard",
     description: "Open a blank canvas",
-    href: "/workspace/4fa2b9c1/whiteboard",
+    tool: "whiteboard",
     icon: "layout-grid",
     color: "secondary",
   },
@@ -81,7 +33,7 @@ export const quickActions: QuickAction[] = [
     id: "qa-study",
     label: "Study Assistant",
     description: "Turn readings into flashcards",
-    href: "/workspace/4fa2b9c1/study",
+    tool: "study",
     icon: "graduation-cap",
     color: "accent",
   },
@@ -89,7 +41,7 @@ export const quickActions: QuickAction[] = [
     id: "qa-career",
     label: "Career Coach",
     description: "Review a job post or resume",
-    href: "/workspace/7cd881ff/career",
+    tool: "career",
     icon: "target",
     color: "purple",
   },
@@ -180,7 +132,3 @@ export const notifications: NotificationItem[] = [
     timestamp: "2026-07-20T16:00:00Z",
   },
 ];
-
-export function getWorkspaceById(id: string): WorkspaceSummary | undefined {
-  return workspaces.find((w) => w.id === id);
-}

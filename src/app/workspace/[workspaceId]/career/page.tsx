@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { Target, Building2 } from "lucide-react";
-import { getWorkspaceById } from "@/lib/dummy-data";
+import { getWorkspaceForUser } from "@/features/workspace/workspace-actions";
 
 const applications = [
   { company: "Figma", role: "Product Designer", stage: "Interview", color: "primary" as const },
@@ -21,7 +21,7 @@ export default async function CareerPage({
   params: Promise<{ workspaceId: string }>;
 }) {
   const { workspaceId } = await params;
-  const workspace = getWorkspaceById(workspaceId);
+  const workspace = await getWorkspaceForUser(workspaceId);
   if (!workspace) notFound();
 
   return (

@@ -1,6 +1,6 @@
 import { redirect, notFound } from "next/navigation";
 import { getSession } from "@/lib/auth";
-import { getWorkspaceById } from "@/lib/dummy-data";
+import { getWorkspaceForUser } from "@/features/workspace/workspace-actions";
 import { getWhiteboardState } from "@/features/workspace/whiteboard-actions";
 import { WorkspaceSidebar } from "@/components/workspace/workspace-sidebar";
 import { WorkspaceHeader } from "@/components/workspace/workspace-header";
@@ -17,7 +17,7 @@ export default async function WorkspaceLayout({
   if (!session) redirect("/login");
 
   const { workspaceId } = await params;
-  const workspace = getWorkspaceById(workspaceId);
+  const workspace = await getWorkspaceForUser(workspaceId);
   if (!workspace) notFound();
 
   const { notes, elements } = await getWhiteboardState(workspaceId);

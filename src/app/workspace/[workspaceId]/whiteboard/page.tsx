@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getWorkspaceById } from "@/lib/dummy-data";
+import { getWorkspaceForUser } from "@/features/workspace/workspace-actions";
 import { WhiteboardCanvas } from "@/components/workspace/whiteboard-canvas";
 
 export default async function WhiteboardPage({
@@ -8,7 +8,7 @@ export default async function WhiteboardPage({
   params: Promise<{ workspaceId: string }>;
 }) {
   const { workspaceId } = await params;
-  const workspace = getWorkspaceById(workspaceId);
+  const workspace = await getWorkspaceForUser(workspaceId);
   if (!workspace) notFound();
 
   return <WhiteboardCanvas />;

@@ -5,7 +5,9 @@ import { QuickActionCard } from "@/components/dashboard/quick-action-card";
 import { WorkspacePreviewCard } from "@/components/dashboard/workspace-preview-card";
 import { RightSidebar } from "@/components/dashboard/right-sidebar";
 import { Fab } from "@/components/dashboard/fab";
-import { quickActions, workspaces } from "@/lib/dummy-data";
+import { EmptyWorkspaceState } from "@/components/dashboard/empty-workspace-state";
+import { quickActions } from "@/lib/dummy-data";
+import { listWorkspacesForUser } from "@/features/workspace/workspace-actions";
 
 export const metadata: Metadata = { title: "Home" };
 
@@ -19,6 +21,8 @@ function greeting(): string {
 export default async function DashboardPage() {
   const session = await getSession();
   const firstName = session?.name?.split(" ")[0] ?? "there";
+  const workspaces = await listWorkspacesForUser();
+  const latestWorkspaceId = workspaces[0]?.id;
 
   return (
     <div className="flex flex-col gap-8 px-6 py-8 xl:flex-row xl:items-start xl:gap-6 xl:px-8">
@@ -36,32 +40,35 @@ export default async function DashboardPage() {
           <PromptBox />
         </div>
 
-        <section className="mb-10">
-          <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-(--color-ink-faint)">
-            Quick actions
-          </h2>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {quickActions.map((action) => (
-              <QuickActionCard key={action.id} action={action} />
-            ))}
-          </div>
-        </section>
+        {workspaces.length === 0 || !latestWorkspaceId ? (
+          <EmptyWorkspaceState />
+        ) : (
+          <>
+            <section className="mb-10">
+              <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-(--color-ink-faint)">
+                Quick actions
+              </h2>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                {quickActions.map((action) => (
+                  <QuickActionCard key={action.id} action={action} workspaceId={latestWorkspaceId} />
+                ))}
+              </div>
+            </section>
 
-        <section>
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-xs font-semibold uppercase tracking-wide text-(--color-ink-faint)">
-              Continue working
-            </h2>
-            <a href="/dashboard" className="text-xs font-medium text-(--color-primary) hover:underline">
-              View all
-            </a>
-          </div>
-          <div className="-mx-1 flex snap-x gap-4 overflow-x-auto px-1 pb-2">
-            {workspaces.map((ws) => (
-              <WorkspacePreviewCard key={ws.id} workspace={ws} />
-            ))}
-          </div>
-        </section>
+            <section>
+              <div className="mb-3 flex items-center justify-between">
+                <h2 className="text-xs font-semibold uppercase tracking-wide text-(--color-ink-faint)">
+                  Continue working
+                </h2>
+              </div>
+              <div className="-mx-1 flex snap-x gap-4 overflow-x-auto px-1 pb-2">
+                {workspaces.map((ws) => (
+                  <WorkspacePreviewCard key={ws.id} workspace={ws} />
+                ))}
+              </div>
+            </section>
+          </>
+        )}
       </div>
 
       <RightSidebar />

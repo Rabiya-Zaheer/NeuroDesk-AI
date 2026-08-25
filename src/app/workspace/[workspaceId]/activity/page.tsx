@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getWorkspaceById, recentActivity } from "@/lib/dummy-data";
+import { getWorkspaceForUser } from "@/features/workspace/workspace-actions";
 import { resolveIcon } from "@/lib/icon-map";
 import { formatRelativeTime } from "@/lib/utils";
 
@@ -9,7 +9,7 @@ export default async function WorkspaceActivityPage({
   params: Promise<{ workspaceId: string }>;
 }) {
   const { workspaceId } = await params;
-  const workspace = getWorkspaceById(workspaceId);
+  const workspace = await getWorkspaceForUser(workspaceId);
   if (!workspace) notFound();
 
   return (

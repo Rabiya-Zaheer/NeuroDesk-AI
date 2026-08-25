@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { corsPreflight, withCors } from "@/lib/cors";
-import { workspaces } from "@/lib/dummy-data";
+import { listWorkspacesForUser } from "@/features/workspace/workspace-actions";
 
 export async function OPTIONS(request: NextRequest) {
   return corsPreflight(request.headers.get("origin"));
@@ -13,10 +13,9 @@ export async function OPTIONS(request: NextRequest) {
  *   get:
  *     summary: List workspaces available to the signed-in user
  *     description: >
- *       Populates the workspace picker in the extension popup. Phase 1:
- *       workspaces are still dummy data app-wide (see src/lib/dummy-data.ts),
- *       not yet Prisma-backed — this will become a real per-user query once
- *       workspace CRUD lands.
+ *       Populates the workspace picker in the extension popup. Real,
+ *       per-user, Prisma-backed data — only workspaces owned by the
+ *       signed-in account are returned.
  *     tags: [Extension]
  *     security:
  *       - sessionCookie: []
@@ -48,10 +47,7 @@ export async function GET(request: NextRequest) {
     return withCors(NextResponse.json({ error: "Not authenticated" }, { status: 401 }), origin);
   }
 
-  // Phase 1: workspaces are still dummy data app-wide (see src/lib/dummy-data.ts),
-  // not yet Prisma-backed. This mirrors that — swap for a real
-  // `prisma.workspace.findMany({ where: { ownerId: session.userId } })`
-  // once workspace CRUD lands.
+  const workspaces = await listWorkspacesForUser();
   const list = workspaces.map((w) => ({ id: w.id, name: w.name, icon: w.icon, color: w.color }));
 
   return withCors(NextResponse.json({ workspaces: list }), origin);

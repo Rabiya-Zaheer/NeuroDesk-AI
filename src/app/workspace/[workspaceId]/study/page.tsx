@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { GraduationCap, RotateCcw, ChevronLeft, ChevronRight } from "lucide-react";
-import { getWorkspaceById } from "@/lib/dummy-data";
+import { getWorkspaceForUser } from "@/features/workspace/workspace-actions";
 import { Button } from "@/components/ui/button";
 
 const flashcards = [
@@ -21,7 +21,7 @@ export default async function StudyPage({
   params: Promise<{ workspaceId: string }>;
 }) {
   const { workspaceId } = await params;
-  const workspace = getWorkspaceById(workspaceId);
+  const workspace = await getWorkspaceForUser(workspaceId);
   if (!workspace) notFound();
 
   return (

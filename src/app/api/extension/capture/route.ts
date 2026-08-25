@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getSession } from "@/lib/auth";
 import { corsPreflight, withCors } from "@/lib/cors";
-import { getWorkspaceById } from "@/lib/dummy-data";
+import { getWorkspaceForUser } from "@/features/workspace/workspace-actions";
+import { persistNoteCreate } from "@/features/workspace/whiteboard-actions";
 import { broadcastToWorkspace } from "@/lib/supabase/server-realtime";
 
 const capturePayloadSchema = z.object({
@@ -25,10 +26,11 @@ export async function OPTIONS(request: NextRequest) {
  *       Lands the capture as a sticky note using the same StickyNoteState
  *       shape and note-add broadcast event the in-app whiteboard listens
  *       for — the extension is another producer into the same workspace,
- *       not a separate storage system. If the target workspace is open in
- *       a browser tab with a live Supabase Realtime connection, the note
- *       appears immediately (deliveredLive: true); otherwise it's still
- *       saved and appears next time that workspace loads.
+ *       not a separate storage system. Persisted to the same
+ *       WhiteboardNote table the in-app whiteboard reads and writes, so it
+ *       survives a refresh, not just a live broadcast. If the target
+ *       workspace is open in a browser tab with a live Supabase Realtime
+ *       connection, the note also appears immediately (deliveredLive: true).
  *     tags: [Extension]
  *     security:
  *       - sessionCookie: []
@@ -59,7 +61,7 @@ export async function OPTIONS(request: NextRequest) {
  *       401:
  *         description: Not authenticated.
  *       404:
- *         description: Workspace not found.
+ *         description: Workspace not found (or not owned by the caller).
  */
 export async function POST(request: NextRequest) {
   const origin = request.headers.get("origin");
@@ -79,15 +81,11 @@ export async function POST(request: NextRequest) {
   }
 
   const { workspaceId, title, url, excerpt } = parsed.data;
-  const workspace = getWorkspaceById(workspaceId);
+  const workspace = await getWorkspaceForUser(workspaceId);
   if (!workspace) {
     return withCors(NextResponse.json({ error: "Workspace not found" }, { status: 404 }), origin);
   }
 
-  // Land the capture as a sticky note on the workspace whiteboard — the
-  // same StickyNoteState shape and "note-add" event the in-app whiteboard
-  // already listens for (see realtime-context.tsx). A random drop position
-  // keeps captures from stacking exactly on top of each other.
   const note = {
     id: crypto.randomUUID(),
     text: excerpt.length > 160 ? `${excerpt.slice(0, 157)}…` : excerpt || title,
@@ -98,6 +96,7 @@ export async function POST(request: NextRequest) {
     updatedBy: `${session.name} (Chrome extension)`,
   };
 
+  await persistNoteCreate(workspaceId, note);
   const deliveredLive = await broadcastToWorkspace(workspaceId, "note-add", note);
 
   return withCors(

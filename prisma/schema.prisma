@@ -56,7 +56,7 @@ model Workspace {
   slug        String   @unique
   description String?
   icon        String   @default("sparkles")
-  color       String   @default("#6366F1")
+  color       String   @default("primary") // one of: primary | secondary | accent | purple — a design token, not a hex color
 
   ownerId String
   owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
@@ -79,6 +79,10 @@ model Workspace {
 
 model WhiteboardNote {
   id          String  @id @default(cuid())
+  // Deliberately a plain string, not a foreign key to Workspace. Workspaces
+  // ARE real now (see workspace-actions.ts) — this is a separate, still-
+  // pending refinement: adding an actual DB-level FK + cascade delete,
+  // instead of the manual cleanup deleteWorkspace() currently does by hand.
   workspaceId String
   text        String
   x           Float
@@ -101,6 +105,8 @@ model WhiteboardElement {
   color       String
   width       Float
   authorId    String
+  // Shape-specific fields that don't cleanly fit fixed columns — a
+  // stroke's variable-length points array, or a rect's start/end corners.
   data        Json
 
   createdAt DateTime @default(now())
@@ -111,10 +117,14 @@ model WhiteboardElement {
 
 model Document {
   id          String @id @default(cuid())
+  // Same non-FK reasoning as WhiteboardNote — see its comment.
   workspaceId String
   name        String
   mimeType    String
   sizeBytes   Int
+  // Path within the Supabase Storage bucket, not a public URL — the bucket
+  // is private, files are only ever accessed through a short-lived signed
+  // URL generated server-side, never a stored public link.
   storagePath String
   uploadedBy  String
 
@@ -129,6 +139,8 @@ model ChatMessage {
   workspaceId String
   role        String // "user" | "assistant"
   content     String
+  // Only set on user messages — who sent it. Assistant messages don't need
+  // this since there's only ever one assistant.
   authorName  String?
 
   createdAt DateTime @default(now())

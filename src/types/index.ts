@@ -14,7 +14,7 @@ export interface QuickAction {
   id: string;
   label: string;
   description: string;
-  href: string;
+  tool: string; // workspace-relative tool path, e.g. "documents" — combined with a real workspace id at render time, never a hardcoded href
   icon: string;
   color: "primary" | "secondary" | "accent" | "purple";
 }

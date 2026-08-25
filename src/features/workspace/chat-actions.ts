@@ -89,9 +89,9 @@ export async function sendChatMessage(
       ok: true,
       reply: { id: saved.id, role: "assistant", content: replyText, createdAt: saved.createdAt.toISOString() },
     };
- } catch (err) {
+    } catch (err) {
     console.error("[ai-chat] OpenAI request failed", err);
     Sentry.captureException(err, { tags: { feature: "ai-chat" }, extra: { workspaceId } });
     return { ok: false, error: "The AI request failed — try again in a moment." };
-  }
+    }
 }
