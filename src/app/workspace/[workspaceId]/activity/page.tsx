@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { recentActivity } from "@/lib/dummy-data";
 import { getWorkspaceForUser } from "@/features/workspace/workspace-actions";
 import { resolveIcon } from "@/lib/icon-map";
 import { formatRelativeTime } from "@/lib/utils";

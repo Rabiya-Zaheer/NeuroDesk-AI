@@ -3,7 +3,7 @@
 import * as Sentry from "@sentry/nextjs";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
-import { getWorkspaceById } from "@/lib/dummy-data";
+import { getWorkspaceForUser } from "@/features/workspace/workspace-actions";
 import { getOpenAiClient } from "@/lib/openai";
 
 export interface ChatMessageItem {
@@ -14,7 +14,7 @@ export interface ChatMessageItem {
   createdAt: string;
 }
 
-const HISTORY_LIMIT = 20; // keeps the OpenAI context window (and cost) bounded
+const HISTORY_LIMIT = 20;
 
 export async function getChatHistory(workspaceId: string): Promise<ChatMessageItem[]> {
   const rows = await db.chatMessage.findMany({ where: { workspaceId }, orderBy: { createdAt: "asc" } });
@@ -37,7 +37,7 @@ export async function sendChatMessage(
   const trimmed = message.trim();
   if (!trimmed) return { ok: false, error: "Message can't be empty." };
 
-  const workspace = getWorkspaceById(workspaceId);
+  const workspace = await getWorkspaceForUser(workspaceId);
   if (!workspace) return { ok: false, error: "Workspace not found." };
 
   await db.chatMessage.create({
@@ -89,9 +89,9 @@ export async function sendChatMessage(
       ok: true,
       reply: { id: saved.id, role: "assistant", content: replyText, createdAt: saved.createdAt.toISOString() },
     };
-    } catch (err) {
+  } catch (err) {
     console.error("[ai-chat] OpenAI request failed", err);
     Sentry.captureException(err, { tags: { feature: "ai-chat" }, extra: { workspaceId } });
     return { ok: false, error: "The AI request failed — try again in a moment." };
-    }
+  }
 }
