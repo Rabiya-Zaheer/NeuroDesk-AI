@@ -148,6 +148,47 @@ model ChatMessage {
   @@index([workspaceId])
   @@map("chat_messages")
 }
+model JobApplication {
+  id          String  @id @default(cuid())
+  workspaceId String
+  company     String
+  role        String
+  stage       String  @default("applied") // "applied" | "interview" | "offer" | "rejected"
+  notes       String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([workspaceId])
+  @@map("job_applications")
+}
+
+model Flashcard {
+  id          String  @id @default(cuid())
+  workspaceId String
+  question    String
+  answer      String
+  known       Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([workspaceId])
+  @@map("flashcards")
+}
+
+model Reading {
+  id          String  @id @default(cuid())
+  workspaceId String
+  title       String
+  url         String?
+  progress    Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([workspaceId])
+  @@map("readings")
+}
 
 model Session {
   id        String   @id @default(cuid())
