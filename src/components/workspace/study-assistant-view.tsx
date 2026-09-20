@@ -266,7 +266,7 @@ export function StudyAssistantView({
               >
                 <div className="mb-2 flex items-center justify-between gap-2">
                   {r.url ? (
-                    
+                    <a
                       href={r.url}
                       target="_blank"
                       rel="noreferrer"
